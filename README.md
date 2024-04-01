@@ -23,7 +23,41 @@ sudo apt update
     gh auth login
     ```
 ## 2. Install Neovim
-
+  - Download the latest version for linux and extract to `/opt` directory by running:
+    ``` bash
+    curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+    sudo rm -rf /opt/nvim
+    sudo tar -C /opt -xzf nvim-linux64.tar.gz
+    ```
+> **Note**
+> - `/opt` directory is optional, other directories work fine but make sure those directories can be accessed by `bash`.
+> - Ensure `curl` is installed. If not, install it by running:
+>   ``` bash
+>   sudo apt install curl
+>   ```
+  - Add this to `~/.bashrc` to enable `nvim` command:
+    ```  bash
+    export VIM_INSTALL="/opt/nvim-linux64"
+    export PATH=$VIM_INSTALL/bin:$PATH
+    ```
+  - Configure neovim's plugins and key maps:
+    + Clone neovim's setup:
+        ``` bash
+        git clone https://github.com/duykasama/nvim-config ~/.config/nvim
+        ```
+    + Download [`Packer`](https://github.com/wbthomason/packer.nvim):
+        ``` bash
+        git clone --depth 1 https://github.com/wbthomason/packer.nvim\
+        ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+        ```
+    + Install plugins:
+        ``` bash
+        nvim ~/.config/nvim/lua/duykasama/packer.lua
+        ```
+        ``` bash
+        :so
+        :PackerSync
+        ```
 ## 3. Install Node.js
 
 ## 4. Install bun
