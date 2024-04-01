@@ -67,7 +67,9 @@ sudo apt update
     nvm install 20
     ```
 ## 4. Install bun
-
+  ``` bash
+  npm i -g bun
+  ```
 ## 5. Install Java
 
 ## 6. Install Dotnet
