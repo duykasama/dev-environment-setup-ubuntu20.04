@@ -81,6 +81,16 @@ sudo apt update
     export JAVA_HOME="$HOME/Environments/Java/{extracted-directory}"
     export PATH=$JAVA_HOME/bin:$PATH
     ```
+  - Download `maven` [here](https://maven.apache.org/download.cgi/).
+  - Extract downloaded archive:
+    ``` bash
+    tar -zxvf ~/Downloads/{file-name} -C ~/Environments/Java
+    ```
+  - Add this to `~/.bashrc`:
+    ``` bash
+    export MAVEN_HOME="$HOME/Environments/Java/{extracted-directory}"
+    export PATH=$MAVEN_HOME/bin:$PATH
+    ```
 ## 6. Install Dotnet
 
 ## 7. Install C and C++ compiler
