@@ -44,6 +44,8 @@ sudo apt update
     + Clone neovim's setup:
         ``` bash
         git clone https://github.com/duykasama/nvim-config ~/.config/nvim
+        cd ~/.config/nvim
+        git checkout ubuntu
         ```
     + Download [`Packer`](https://github.com/wbthomason/packer.nvim):
         ``` bash
