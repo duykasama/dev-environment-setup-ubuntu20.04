@@ -92,7 +92,25 @@ sudo apt update
     export PATH=$MAVEN_HOME/bin:$PATH
     ```
 ## 6. Install Dotnet
-
+  - Download installation script:
+    ``` bash
+    wget https://dot.net/v1/dotnet-install.sh -O ~/Environments/Dotnet/dotnet-install.sh
+    ```
+  - Grant permission for the script:
+    ``` bash
+    chmod +x ~/Environments/Dotnet/dotnet-install.sh
+    ```
+  - Run installation script:
+    ``` bash
+    ~/Environments/Dotnet/dotnet-install.sh --version latest
+    ```
+      > **Notes**
+      > - Replace `latest` with the desired version.
+  - Add this to `~/.bashrc`:
+    ``` bash
+    export DOTNET_HOME="$HOME/Environments/Dotnet/.dotnet"
+    export PATH=$DOTNET_HOME:$PATH
+    ```
 ## 7. Install C and C++ compiler
 
 ## 8. Install Rust
