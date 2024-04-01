@@ -61,7 +61,11 @@ sudo apt update
         :PackerSync
         ```
 ## 3. Install Node.js
-
+  - Installs `NVM` and `Node.js` version 20:
+    ``` bash
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    nvm install 20
+    ```
 ## 4. Install bun
 
 ## 5. Install Java
