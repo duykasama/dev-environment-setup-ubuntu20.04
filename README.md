@@ -71,7 +71,16 @@ sudo apt update
   npm i -g bun
   ```
 ## 5. Install Java
-
+  - Download desired version [here](https://www.oracle.com/java/technologies/downloads/).
+  - Extract downloaded archive:
+    ``` bash
+    tar -zxvf ~/Downloads/{file-name} -C ~/Environments/Java
+    ```
+  - Add this to `~/.bashrc`:
+    ``` bash
+    export JAVA_HOME="$HOME/Environments/Java/{extracted-directory}"
+    export PATH=$JAVA_HOME/bin:$PATH
+    ```
 ## 6. Install Dotnet
 
 ## 7. Install C and C++ compiler
