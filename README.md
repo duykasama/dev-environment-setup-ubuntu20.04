@@ -116,6 +116,9 @@ sudo apt update
   sudo apt install build-essential
   ```
 ## 8. Install Rust
+  ``` bash
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  ```
 
 ## 9. Install Flutter
 
