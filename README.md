@@ -119,7 +119,27 @@ sudo apt update
   ``` bash
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
   ```
+## 9. Install Android Studio
+  - Download `Android Studio` [here](https://developer.android.com/studio).
+  - Extract downloaded archive:
+    ``` bash
+    tar -zxvf ~/Downloads/{file-name} -C ~/Environments/AndroidStudio
+    ```
+  - After installing `Android Studio`, open `Sdk Manager` and install the following `tools`:
+    + Ndk (Side by side)
+    + Android SDK Command-line Tools
+    + CMake
+    + Android SDK Platform-Tools
+  - Add this to `~/.bashrc`:
+    ``` bash
+    # android home
+    export ANDROID_HOME="$HOME/Android/Sdk"
+    export PATH=$ANDROID_HOME:$PATH
 
-## 9. Install Flutter
+    # ndk home
+    export NDK_HOME="$ANDROID_HOME/ndk/{ndk-version}"
+    export PATH=$NDK_HOME:$PATH
+    ```
+## 10. Install Flutter
 
-## 10. Install Docker
+## 11. Install Docker
