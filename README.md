@@ -141,5 +141,20 @@ sudo apt update
     export PATH=$NDK_HOME:$PATH
     ```
 ## 10. Install Flutter
-
+  - Install required packages:
+    ``` bash
+    sudo apt-get update -y && sudo apt-get upgrade -y;
+    sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa
+    ```
+  - Install prequisite packages for Android Studio:
+    ``` bash
+    sudo apt-get install \
+    libc6:i386 libncurses5:i386 \
+    libstdc++6:i386 lib32z1 \
+    libbz2-1.0:i386
+    ```
+  - Install `Flutter`:
+    ``` bash
+    sudo snap install flutter
+    ```        
 ## 11. Install Docker
