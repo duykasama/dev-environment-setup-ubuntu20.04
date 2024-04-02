@@ -112,7 +112,9 @@ sudo apt update
     export PATH=$DOTNET_HOME:$PATH
     ```
 ## 7. Install C and C++ compiler
-
+  ``` bash
+  sudo apt install build-essential
+  ```
 ## 8. Install Rust
 
 ## 9. Install Flutter
