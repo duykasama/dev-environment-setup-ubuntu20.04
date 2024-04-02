@@ -64,6 +64,7 @@ sudo apt update
   - Installs `NVM` and `Node.js` version 20:
     ``` bash
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    source ~/.bashrc
     nvm install 20
     ```
 ## 4. Install bun
