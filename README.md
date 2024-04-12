@@ -160,3 +160,4 @@ sudo apt update
     ```        
 ## 11. Install Docker
 ## 12. Install Tmux
+## 13. Install netcoredbg
