@@ -159,3 +159,4 @@ sudo apt update
     sudo snap install flutter
     ```        
 ## 11. Install Docker
+## 12. Install Tmux
