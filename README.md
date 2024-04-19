@@ -162,3 +162,4 @@ sudo apt update
 ## 12. Install Tmux
 ## 13. Install netcoredbg
 ## 14. Install Postman
+## 15. Install usql
