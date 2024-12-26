@@ -1,5 +1,7 @@
 - name: Development environtment setup
-  hosts: myhosts
+  hosts: localhost
+  vars:
+    ansible_connection: local
   tasks:
     - name: Update package cache
       apt:
@@ -12,9 +14,9 @@
     - name: Install git
       apt:
         name:
-          - git=2.43.0
-          - gh=2.45.0
-          - curl=8.5.0
+          - git
+          - gh
+          - curl
         state: present
 
     - name: Login to GitHub
