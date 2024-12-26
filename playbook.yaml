@@ -1,0 +1,27 @@
+- name: Development environtment setup
+  hosts: myhosts
+  tasks:
+    - name: Update package cache
+      apt:
+        update_cache: yes
+
+    - name: Upgrade packages
+      apt:
+        upgrade: dist
+
+    - name: Install git
+      apt:
+        name:
+          - git=2.43.0
+          - gh=2.45.0
+          - curl=8.5.0
+        state: present
+
+    - name: Login to GitHub
+      command: gh auth login --with-token < {replace_with_actual_token}
+
+    - name: Download neovim latest release
+      command: curl -LO -o ~/Downloads https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+
+    - name: Extract neovim release
+      command: tar -C /opt -xzf nvim-linux64.tar.gz
