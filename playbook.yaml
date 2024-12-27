@@ -2,16 +2,20 @@
   hosts: localhost
   vars:
     ansible_connection: local
+    user_dir: /home/duy
   tasks:
     - name: Update package cache
+      become: yes
       apt:
         update_cache: yes
 
     - name: Upgrade packages
+      become: yes
       apt:
         upgrade: dist
 
-    - name: Install git
+    - name: Install tools
+      become: yes
       apt:
         name:
           - git
@@ -20,10 +24,49 @@
         state: present
 
     - name: Login to GitHub
-      command: gh auth login --with-token < {replace_with_actual_token}
+      command: gh auth login --with-token
+      args:
+        stdin: "{{ lookup('file', 'token.txt') }}"
+
+    - name: Ensure Downloads directory
+      file:
+        path: "{{ user_dir }}/Downloads"
+        state: directory
+        mode: "0755"
 
     - name: Download neovim latest release
-      command: curl -LO -o ~/Downloads https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+      get_url:
+        url: "https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz"
+        dest: "{{ user_dir }}/Downloads/nvim.tar.gz"
+        mode: "0644"
 
     - name: Extract neovim release
-      command: tar -C /opt -xzf nvim-linux64.tar.gz
+      unarchive:
+        src: "{{ user_dir }}/Downloads/nvim.tar.gz"
+        dest: "/opt"
+        remote_src: yes
+        extra_opts:
+          - "--strip-components=1"
+
+    - name: Configure nvim path
+      lineinfile:
+        path: "{{ user_dir }}/.bashrc"
+        line: "{{ item }}"
+        state: present
+      loop:
+        - 'export VIM_INSTALL="/opt/bin"'
+        - 'export PATH=$VIM_INSTALL:$PATH'
+
+    - name: Install Node Version Manager
+      shell: |
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+      args:
+        executable: /bin/bash
+
+    - name: Source .bashrc file
+      shell: source {{ user_dir }}/.bashrc
+      args:
+        executable: /bin/bash
+
+    - name: Install Node.js 23
+      command: nvm install 23
