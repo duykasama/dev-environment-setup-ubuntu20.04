@@ -231,6 +231,7 @@
         state: present
 
     - name: Download Postman archive
+      become: yes
       get_url:
         url: "https://dl.pstmn.io/download/latest/linux_64"
         dest: "{{ user_dir }}/Downloads/postman.tar.gz"
@@ -250,14 +251,80 @@
           - "--strip-components=1"
 
     - name: Create .desktop file for Postman
-      ansible.builtin.copy:
-        dest: /usr/share/applications/postman.desktop
+      copy:
+        dest: "{{ user_dir }}/.local/share/applications/postman.desktop"
         content: |
           [Desktop Entry]
           Version=1.0
           Name=Postman
           Exec={{ user_dir }}/Environment/postman/Postman
           Icon={{ user_dir }}/Environment/postman/app/icons/icon_128x128.png
+          Terminal=false
+          Type=Application
+          Categories=Utility;
+        mode: '0644'
+
+    - name: Clone Zed repository
+      git:
+        clone: yes
+        repo: "https://github.com/zed-industries/zed"
+        dest: "{{ user_dir }}/Environment/zed"
+
+    - name: Install the necessary system libraries
+      become: yes
+      shell: "{{ user_dir }}/Environment/zed/script/linux"
+      args:
+        executable: /bin/bash
+
+        # - name: Build Zed
+        #   shell: cargo build --release --manifest-path {{ user_dir }}/Environment/zed/Cargo.toml
+        #   args:
+        #     executable: /bin/bash
+
+    - name: Create .desktop file for Zed IDE
+      copy:
+        dest: "{{ user_dir }}/.local/share/applications/zed.desktop"
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Name=Zed
+          Exec={{ user_dir }}/Environment/zed/target/release/zed
+          Icon={{ user_dir }}/Environment/zed/assets/icons/logo_96.svg
+          Terminal=false
+          Type=Application
+          Categories=Utility;
+        mode: '0644'
+
+    - name: Download Dbeaver archive
+      become: yes
+      get_url:
+        url: "https://dbeaver.io/files/dbeaver-ce-latest-linux.gtk.x86_64.tar.gz"
+        dest: "{{ user_dir }}/Downloads/dbeaver.tar.gz"
+        mode: "0644"
+
+    - name: Ensure dbeaver directory
+      file:
+        path: "{{ user_dir }}/Environment/dbeaver"
+        state: directory
+        mode: "0755"
+
+    - name: Unzip Dbeaver
+      unarchive:
+        src: "{{ user_dir }}/Downloads/dbeaver.tar.gz" 
+        dest: "{{ user_dir }}/Environment/dbeaver"
+        remote_src: yes
+        extra_opts:
+          - "--strip-component=1"
+
+    - name: Create .desktop file for Dbeaver
+      copy:
+        dest: "{{ user_dir }}/.local/share/applications/dbeaver.desktop"
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Name=Dbeaver
+          Exec={{ user_dir }}/Environment/dbeaver/dbeaver
+          Icon={{ user_dir }}/Environment/dbeaver/dbeaver.png
           Terminal=false
           Type=Application
           Categories=Utility;
