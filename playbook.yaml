@@ -69,4 +69,12 @@
         executable: /bin/bash
 
     - name: Install Node.js 23
-      command: nvm install 23
+      shell: |
+        . {{ user_dir }}/.nvm/nvm.sh && nvm install 23
+      args:
+        executable: /bin/bash
+
+    - name: Source .bashrc file
+      shell: source {{ user_dir }}/.bashrc
+      args:
+        executable: /bin/bash
