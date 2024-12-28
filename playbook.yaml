@@ -230,6 +230,39 @@
         name: tmux
         state: present
 
+    - name: Download Postman archive
+      get_url:
+        url: "https://dl.pstmn.io/download/latest/linux_64"
+        dest: "{{ user_dir }}/Downloads/postman.tar.gz"
+
+    - name: Ensure postman directory
+      file:
+        path: "{{ user_dir }}/Environment/postman"
+        state: directory
+        mode: "0755"
+
+    - name: Unzip Postman archive
+      unarchive:
+        src: "{{ user_dir }}/Downloads/postman.tar.gz"
+        dest: "{{ user_dir }}/Environment/postman"
+        remote_src: yes
+        extra_opts:
+          - "--strip-components=1"
+
+    - name: Create .desktop file for Postman
+      ansible.builtin.copy:
+        dest: /usr/share/applications/postman.desktop
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Name=Postman
+          Exec={{ user_dir }}/Environment/postman/Postman
+          Icon={{ user_dir }}/Environment/postman/app/icons/icon_128x128.png
+          Terminal=false
+          Type=Application
+          Categories=Utility;
+        mode: '0644'
+
     - name: Source .bashrc file
       shell: . {{ user_dir }}/.bashrc
       args:
