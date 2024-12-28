@@ -64,7 +64,7 @@
         executable: /bin/bash
 
     - name: Source .bashrc file
-      shell: source {{ user_dir }}/.bashrc
+      shell: . {{ user_dir }}/.bashrc
       args:
         executable: /bin/bash
 
@@ -75,17 +75,104 @@
         executable: /bin/bash
 
     - name: Source .bashrc file
-      shell: source {{ user_dir }}/.bashrc
+      shell: . {{ user_dir }}/.bashrc
       args:
         executable: /bin/bash
 
     - name: Install bun
-      shell: npm i -g bun
+      npm:
+        name: bun
+        global: yes
+
+    - name: Source .bashrc file
+      shell: . {{ user_dir }}/.bashrc
       args:
         executable: /bin/bash
 
+    - name: Download Java 21 archive
+      become: yes
+      get_url:
+        url: "https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.tar.gz"
+        dest: "{{ user_dir }}/Downloads/java-21"
+        mode: "0644"
+
+    - name: Ensure destination for java environment directory
+      file:
+        path: "{{ user_dir }}/Environment/java/21"
+        state: directory
+        mode: "0755"
+
+    - name: Unzip Java 21 archive
+      unarchive:
+        src: "{{ user_dir }}/Downloads/java-21"
+        dest: "{{ user_dir }}/Environment/java/21"
+        remote_src: yes
+        extra_opts:
+          - "--strip-components=1"
+
+    - name: Download Maven 4
+      become: yes
+      get_url:
+        url: "https://dlcdn.apache.org/maven/maven-4/4.0.0-rc-2/binaries/apache-maven-4.0.0-rc-2-bin.tar.gz"
+        dest: "{{ user_dir }}/Downloads/maven-4.tar.gz"
+        mode: "0644"
+
+    - name: Ensure destination for maven environment directory
+      file:
+        path: "{{ user_dir }}/Environment/maven/4"
+        state: directory
+        mode: "0755"
+
+    - name: Unzip Maven 4 archive
+      unarchive:
+        src: "{{ user_dir }}/Downloads/maven-4.tar.gz" 
+        dest: "{{ user_dir }}/Environment/maven/4"
+        remote_src: yes
+        extra_opts:
+          - "--strip-components=1"
+
+    - name: Add Java and Maven to path
+      lineinfile:
+        path: "{{ user_dir }}/.bashrc"
+        line: "{{ item }}"
+        state: present
+      loop:
+        - 'export JAVA_HOME="$HOME/Environment/java/21"'
+        - 'export PATH=$JAVA_HOME/bin:$PATH'
+        - 'export MAVEN_HOME="$HOME/Environment/maven/4"'
+        - 'export PATH=$MAVEN_HOME/bin:$PATH'
+
     - name: Source .bashrc file
-      shell: source {{ user_dir }}/.bashrc
+      shell: . {{ user_dir }}/.bashrc
       args:
         executable: /bin/bash
+
+    - name: Ensure destination for dotnet environment directory
+      file:
+        path: "{{ user_dir }}/Environment/dotnet/8"
+        state: directory
+        mode: "0775"
+
+
+    - name: Download dotnet installation script
+      become: yes
+      get_url:
+        url: "https://dot.net/v1/dotnet-install.sh"
+        dest: "{{ user_dir }}/Environment/dotnet/dotnet-install.sh"
+        mode: "0777"
+
+    - name: Install dotnet version 8
+      become: yes
+      shell: "{{ user_dir }}/Environment/dotnet/dotnet-install.sh --install-dir {{ user_dir }}/Environment/dotnet/8"
+      args:
+        executable: /bin/bash
+
+    - name: Add dotnet to path
+      lineinfile:
+        path: "{{ user_dir }}/.bashrc"
+        line: "{{ item }}"
+        state: present
+      loop:
+        - 'export DOTNET_HOME="$HOME/Environment/dotnet/8"'
+        - 'export PATH=$DOTNET_HOME:$PATH'
 
