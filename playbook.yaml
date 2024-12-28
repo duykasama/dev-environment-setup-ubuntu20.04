@@ -43,6 +43,7 @@
         mode: "0644"
 
     - name: Extract neovim release
+      become: yes
       unarchive:
         src: "{{ user_dir }}/Downloads/nvim.tar.gz"
         dest: "/opt"
