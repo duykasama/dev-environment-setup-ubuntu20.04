@@ -1,0 +1,336 @@
+- name: Development environtment setup
+  hosts: localhost
+  vars:
+    ansible_connection: local
+    user_dir: /home/duy
+    ansible_user: duy
+  tasks:
+    - name: Update package cache
+      become: yes
+      apt:
+        update_cache: yes
+
+    - name: Upgrade packages
+      become: yes
+      apt:
+        upgrade: dist
+
+    - name: Install tools
+      become: yes
+      apt:
+        name:
+          - git
+          - gh
+          - curl
+          - ca-certificates
+        state: present
+
+    - name: Login to GitHub
+      command: gh auth login --with-token
+      args:
+        stdin: "{{ lookup('file', 'token.txt') }}"
+
+    - name: Ensure Downloads directory
+      file:
+        path: "{{ user_dir }}/Downloads"
+        state: directory
+        mode: "0755"
+
+    - name: Download neovim latest release
+      get_url:
+        url: "https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz"
+        dest: "{{ user_dir }}/Downloads/nvim.tar.gz"
+        mode: "0644"
+
+    - name: Extract neovim release
+      unarchive:
+        src: "{{ user_dir }}/Downloads/nvim.tar.gz"
+        dest: "/opt"
+        remote_src: yes
+        extra_opts:
+          - "--strip-components=1"
+
+    - name: Configure nvim path
+      lineinfile:
+        path: "{{ user_dir }}/.bashrc"
+        line: "{{ item }}"
+        state: present
+      loop:
+        - 'export VIM_INSTALL="/opt/bin"'
+        - 'export PATH=$VIM_INSTALL:$PATH'
+
+    - name: Install Node Version Manager
+      shell: |
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+      args:
+        executable: /bin/bash
+
+    - name: Install Node.js 23
+      shell: |
+        . {{ user_dir }}/.nvm/nvm.sh && nvm install 23
+      args:
+        executable: /bin/bash
+
+    - name: Install bun
+      npm:
+        name: bun
+        global: yes
+
+    - name: Download Java 21 archive
+      become: yes
+      get_url:
+        url: "https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.tar.gz"
+        dest: "{{ user_dir }}/Downloads/java-21"
+        mode: "0644"
+
+    - name: Ensure destination for java environment directory
+      file:
+        path: "{{ user_dir }}/Environment/java/21"
+        state: directory
+        mode: "0755"
+
+    - name: Unzip Java 21 archive
+      unarchive:
+        src: "{{ user_dir }}/Downloads/java-21"
+        dest: "{{ user_dir }}/Environment/java/21"
+        remote_src: yes
+        extra_opts:
+          - "--strip-components=1"
+
+    - name: Download Maven 4
+      become: yes
+      get_url:
+        url: "https://dlcdn.apache.org/maven/maven-4/4.0.0-rc-2/binaries/apache-maven-4.0.0-rc-2-bin.tar.gz"
+        dest: "{{ user_dir }}/Downloads/maven-4.tar.gz"
+        mode: "0644"
+
+    - name: Ensure destination for maven environment directory
+      file:
+        path: "{{ user_dir }}/Environment/maven/4"
+        state: directory
+        mode: "0755"
+
+    - name: Unzip Maven 4 archive
+      unarchive:
+        src: "{{ user_dir }}/Downloads/maven-4.tar.gz" 
+        dest: "{{ user_dir }}/Environment/maven/4"
+        remote_src: yes
+        extra_opts:
+          - "--strip-components=1"
+
+    - name: Add Java and Maven to path
+      lineinfile:
+        path: "{{ user_dir }}/.bashrc"
+        line: "{{ item }}"
+        state: present
+      loop:
+        - 'export JAVA_HOME="$HOME/Environment/java/21"'
+        - 'export PATH=$JAVA_HOME/bin:$PATH'
+        - 'export MAVEN_HOME="$HOME/Environment/maven/4"'
+        - 'export PATH=$MAVEN_HOME/bin:$PATH'
+
+    - name: Ensure destination for dotnet environment directory
+      file:
+        path: "{{ user_dir }}/Environment/dotnet/8"
+        state: directory
+        mode: "0775"
+
+
+    - name: Download dotnet installation script
+      become: yes
+      get_url:
+        url: "https://dot.net/v1/dotnet-install.sh"
+        dest: "{{ user_dir }}/Environment/dotnet/dotnet-install.sh"
+        mode: "0777"
+
+    - name: Install dotnet version 8
+      become: yes
+      shell: "{{ user_dir }}/Environment/dotnet/dotnet-install.sh --install-dir {{ user_dir }}/Environment/dotnet/8"
+      args:
+        executable: /bin/bash
+
+    - name: Add dotnet to path
+      lineinfile:
+        path: "{{ user_dir }}/.bashrc"
+        line: "{{ item }}"
+        state: present
+      loop:
+        - 'export DOTNET_HOME="$HOME/Environment/dotnet/8"'
+        - 'export PATH=$DOTNET_HOME:$PATH'
+
+    - name: Install C and C++ compiler
+      become: yes
+      apt:
+        name: build-essential
+        state: present
+
+    - name: Install Rust
+      shell: "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
+      args:
+        executable: /bin/sh
+
+    - name: Create keyrings directory
+      become: yes
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Download docker keyring
+      become: yes
+      get_url:
+        url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+    - name: Add Docker repository to sources.list.d
+      become: yes
+      copy:
+        dest: /etc/apt/sources.list.d/docker.list
+        mode: '0644'
+        content: |
+          deb [arch={{ ansible_architecture }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_lsb.codename }} stable
+
+    - name: Update the APT package list
+      become: yes
+      apt:
+        update_cache: yes
+
+    - name: Install Docker and essential tools
+      become: yes
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Create the docker group
+      become: yes
+      group:
+        name: docker
+        state: present
+
+    - name: Add the current user to the docker group
+      become: yes
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Activate the new group for the current session
+      command: newgrp docker
+      when: ansible_user_id != "root"
+
+    - name: Install tmux
+      become: yes
+      apt:
+        name: tmux
+        state: present
+
+    - name: Download Postman archive
+      become: yes
+      get_url:
+        url: "https://dl.pstmn.io/download/latest/linux_64"
+        dest: "{{ user_dir }}/Downloads/postman.tar.gz"
+
+    - name: Ensure postman directory
+      file:
+        path: "{{ user_dir }}/Environment/postman"
+        state: directory
+        mode: "0755"
+
+    - name: Unzip Postman archive
+      unarchive:
+        src: "{{ user_dir }}/Downloads/postman.tar.gz"
+        dest: "{{ user_dir }}/Environment/postman"
+        remote_src: yes
+        extra_opts:
+          - "--strip-components=1"
+
+    - name: Create .desktop file for Postman
+      copy:
+        dest: "{{ user_dir }}/.local/share/applications/postman.desktop"
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Name=Postman
+          Exec={{ user_dir }}/Environment/postman/Postman
+          Icon={{ user_dir }}/Environment/postman/app/icons/icon_128x128.png
+          Terminal=false
+          Type=Application
+          Categories=Utility;
+        mode: '0644'
+
+    - name: Clone Zed repository
+      git:
+        clone: yes
+        repo: "https://github.com/zed-industries/zed"
+        dest: "{{ user_dir }}/Environment/zed"
+
+    - name: Install the necessary system libraries
+      become: yes
+      shell: "{{ user_dir }}/Environment/zed/script/linux"
+      args:
+        executable: /bin/bash
+
+        # - name: Build Zed
+        #   shell: cargo build --release --manifest-path {{ user_dir }}/Environment/zed/Cargo.toml
+        #   args:
+        #     executable: /bin/bash
+
+    - name: Create .desktop file for Zed IDE
+      copy:
+        dest: "{{ user_dir }}/.local/share/applications/zed.desktop"
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Name=Zed
+          Exec={{ user_dir }}/Environment/zed/target/release/zed
+          Icon={{ user_dir }}/Environment/zed/assets/icons/logo_96.svg
+          Terminal=false
+          Type=Application
+          Categories=Utility;
+        mode: '0644'
+
+    - name: Download Dbeaver archive
+      become: yes
+      get_url:
+        url: "https://dbeaver.io/files/dbeaver-ce-latest-linux.gtk.x86_64.tar.gz"
+        dest: "{{ user_dir }}/Downloads/dbeaver.tar.gz"
+        mode: "0644"
+
+    - name: Ensure dbeaver directory
+      file:
+        path: "{{ user_dir }}/Environment/dbeaver"
+        state: directory
+        mode: "0755"
+
+    - name: Unzip Dbeaver
+      unarchive:
+        src: "{{ user_dir }}/Downloads/dbeaver.tar.gz" 
+        dest: "{{ user_dir }}/Environment/dbeaver"
+        remote_src: yes
+        extra_opts:
+          - "--strip-component=1"
+
+    - name: Create .desktop file for Dbeaver
+      copy:
+        dest: "{{ user_dir }}/.local/share/applications/dbeaver.desktop"
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Name=Dbeaver
+          Exec={{ user_dir }}/Environment/dbeaver/dbeaver
+          Icon={{ user_dir }}/Environment/dbeaver/dbeaver.png
+          Terminal=false
+          Type=Application
+          Categories=Utility;
+        mode: '0644'
+
+    - name: Source .bashrc file
+      shell: . {{ user_dir }}/.bashrc
+      args:
+        executable: /bin/bash
