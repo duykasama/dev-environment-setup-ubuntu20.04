@@ -78,3 +78,14 @@
       shell: source {{ user_dir }}/.bashrc
       args:
         executable: /bin/bash
+
+    - name: Install bun
+      shell: npm i -g bun
+      args:
+        executable: /bin/bash
+
+    - name: Source .bashrc file
+      shell: source {{ user_dir }}/.bashrc
+      args:
+        executable: /bin/bash
+
