@@ -65,19 +65,9 @@
       args:
         executable: /bin/bash
 
-    - name: Source .bashrc file
-      shell: . {{ user_dir }}/.bashrc
-      args:
-        executable: /bin/bash
-
     - name: Install Node.js 23
       shell: |
         . {{ user_dir }}/.nvm/nvm.sh && nvm install 23
-      args:
-        executable: /bin/bash
-
-    - name: Source .bashrc file
-      shell: . {{ user_dir }}/.bashrc
       args:
         executable: /bin/bash
 
@@ -85,11 +75,6 @@
       npm:
         name: bun
         global: yes
-
-    - name: Source .bashrc file
-      shell: . {{ user_dir }}/.bashrc
-      args:
-        executable: /bin/bash
 
     - name: Download Java 21 archive
       become: yes
@@ -143,11 +128,6 @@
         - 'export PATH=$JAVA_HOME/bin:$PATH'
         - 'export MAVEN_HOME="$HOME/Environment/maven/4"'
         - 'export PATH=$MAVEN_HOME/bin:$PATH'
-
-    - name: Source .bashrc file
-      shell: . {{ user_dir }}/.bashrc
-      args:
-        executable: /bin/bash
 
     - name: Ensure destination for dotnet environment directory
       file:
@@ -244,3 +224,13 @@
       command: newgrp docker
       when: ansible_user_id != "root"
 
+    - name: Install tmux
+      become: yes
+      apt:
+        name: tmux
+        state: present
+
+    - name: Source .bashrc file
+      shell: . {{ user_dir }}/.bashrc
+      args:
+        executable: /bin/bash
