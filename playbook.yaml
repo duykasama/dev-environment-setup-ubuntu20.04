@@ -25,11 +25,6 @@
           - ca-certificates
         state: present
 
-    - name: Login to GitHub
-      command: gh auth login --with-token
-      args:
-        stdin: "{{ lookup('file', 'token.txt') }}"
-
     - name: Ensure Downloads directory
       file:
         path: "{{ user_dir }}/Downloads"
